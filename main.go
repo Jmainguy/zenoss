@@ -13,7 +13,7 @@ func check(e error) {
     }
 }
 
-func createAlarm(url, user, password, summary, device string) (response string) {
+func CreateAlarm(url, user, password, summary, device string) (response string) {
     payload := fmt.Sprintf(`{
                 "action": "EventsRouter",
                 "method": "add_event",
