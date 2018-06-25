@@ -2,19 +2,15 @@ package zenoss
 
 import (
 	"fmt"
-    "io/ioutil"
-    "net/http"
-    "strings"
+	"io/ioutil"
+	"net/http"
+	"strings"
+    "encoding/json"
 )
 
-func check(e error) {
-    if e != nil {
-        fmt.Println(e)
-    }
-}
 
-func CreateAlarm(url, user, password, summary, device string) (response string) {
-    payload := fmt.Sprintf(`{
+func CreateAlarm(url, user, password, summary, device string) (UUID string, success bool) {
+	payload := fmt.Sprintf(`{
                 "action": "EventsRouter",
                 "method": "add_event",
                 "data": [{
@@ -29,21 +25,47 @@ func CreateAlarm(url, user, password, summary, device string) (response string) 
                 "tid": 1
 }`, summary, device)
 
-    p := strings.NewReader(payload)
+	p := strings.NewReader(payload)
 	req, err := http.NewRequest("POST", url, p)
 	if err != nil {
-		fmt.Println(err)
-	}
+        fmt.Println(err)
+        UUID = ""
+        success = false
+        return
+    }
+	if err != nil {
+        fmt.Println(err)
+        UUID = ""
+        success = false
+        return
+    }
 	req.SetBasicAuth(user, password)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println(err)
-	}
+        fmt.Println(err)
+        UUID = ""
+        success = false
+        return
+    }
 	defer resp.Body.Close()
-    bodyBytes, err := ioutil.ReadAll(resp.Body)
-    check(err)
-    response = string(bodyBytes)
-    return response
+    body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+        fmt.Println(err)
+        UUID = ""
+        success = false
+        return
+    }
+    response := CAResponse{}
+    err = json.Unmarshal(body, &response)
+	if err != nil {
+        fmt.Println(err)
+        UUID = ""
+        success = false
+        return
+    }
+    UUID = response.UUID
+    success = response.Result.Success
+	return
 }
