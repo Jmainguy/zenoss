@@ -19,7 +19,7 @@ func CreateAlarm(url, user, password, summary, device string) (response string) 
                 "method": "add_event",
                 "data": [{
                     "summary": "%s",
-                    "device": %s,
+                    "device": "%s",
                     "component": "golang =)",
                     "severity": "Critical",
                     "evclasskey": "",
