@@ -1,13 +1,12 @@
 package zenoss
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-    "encoding/json"
 )
-
 
 func CreateAlarm(url, user, password, summary, device string) (UUID string, success bool) {
 	payload := fmt.Sprintf(`{
@@ -28,44 +27,44 @@ func CreateAlarm(url, user, password, summary, device string) (UUID string, succ
 	p := strings.NewReader(payload)
 	req, err := http.NewRequest("POST", url, p)
 	if err != nil {
-        fmt.Println(err)
-        UUID = ""
-        success = false
-        return
-    }
+		fmt.Println(err)
+		UUID = ""
+		success = false
+		return
+	}
 	if err != nil {
-        fmt.Println(err)
-        UUID = ""
-        success = false
-        return
-    }
+		fmt.Println(err)
+		UUID = ""
+		success = false
+		return
+	}
 	req.SetBasicAuth(user, password)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-        fmt.Println(err)
-        UUID = ""
-        success = false
-        return
-    }
+		fmt.Println(err)
+		UUID = ""
+		success = false
+		return
+	}
 	defer resp.Body.Close()
-    body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-        fmt.Println(err)
-        UUID = ""
-        success = false
-        return
-    }
-    response := CAResponse{}
-    err = json.Unmarshal(body, &response)
+		fmt.Println(err)
+		UUID = ""
+		success = false
+		return
+	}
+	response := CAResponse{}
+	err = json.Unmarshal(body, &response)
 	if err != nil {
-        fmt.Println(err)
-        UUID = ""
-        success = false
-        return
-    }
-    UUID = response.UUID
-    success = response.Result.Success
+		fmt.Println(err)
+		UUID = ""
+		success = false
+		return
+	}
+	UUID = response.UUID
+	success = response.Result.Success
 	return
 }
