@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+    "time"
 )
 
 func CreateAlarm(url, user, password, summary, device, component, severity, evclasskey, evclass string) (UUID string, success bool) {
@@ -32,16 +33,13 @@ func CreateAlarm(url, user, password, summary, device, component, severity, evcl
 		success = false
 		return
 	}
-	if err != nil {
-		fmt.Println(err)
-		UUID = ""
-		success = false
-		return
-	}
 	req.SetBasicAuth(user, password)
 	req.Header.Set("Content-Type", "application/json")
+    // By Default golangs http client never times out, use a custom one
+    // https://medium.com/@nate510/don-t-use-go-s-default-http-client-4804cb19f779
+    client := &http.Client{Timeout: time.Second * 10}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		UUID = ""
