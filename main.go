@@ -8,21 +8,21 @@ import (
 	"strings"
 )
 
-func CreateAlarm(url, user, password, summary, device, severity string) (UUID string, success bool) {
+func CreateAlarm(url, user, password, summary, device, component, severity, evclasskey, evclass string) (UUID string, success bool) {
 	payload := fmt.Sprintf(`{
                 "action": "EventsRouter",
                 "method": "add_event",
                 "data": [{
                     "summary": "%s",
                     "device": "%s",
-                    "component": "",
+                    "component": "%s",
                     "severity": "%s",
-                    "evclasskey": "",
-                    "evclass": "/App"
+                    "evclasskey": "%s",
+                    "evclass": "%s"
                 }],
                 "type": "rpc",
                 "tid": 1
-}`, summary, device, severity)
+}`, summary, device, component, severity, evclasskey, evclass)
 
 	p := strings.NewReader(payload)
 	req, err := http.NewRequest("POST", url, p)
